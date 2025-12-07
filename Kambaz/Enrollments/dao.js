@@ -1,5 +1,5 @@
 // When a course is created, it needs to be associated with the creator. In a new Enrollments/dao.js file, implement enrollUserInCourse to enroll, or associate, a user to a course.
-import model from "./model.js"; // IMports mongoose model
+import model from "./model.js"; // Imports mongoose model
 import { v4 as uuidv4 } from "uuid";
 
 export default function EnrollmentsDao(db) {
