@@ -26,8 +26,8 @@ app.use(
     origin: function(origin, callback) {
       const allowedOrigins = [
         process.env.CLIENT_URL,
-    'https://kambaz-next-js-main.vercel.app',
-    'https://kambaz-next-js-main-git-main-ellapitts-projects.vercel.app',
+    'https://kambaz-final-front-end-git-main-ellapitts-projects.vercel.app',
+    'https://kambaz-final-front-2qg72y6y5-ellapitts-projects.vercel.app',
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
@@ -37,7 +37,7 @@ app.use(
       ];
 
       // Allow any Vercel preview deployment
-      const vercelPattern = /^https:\/\/kambaz-next-js-main2.*\.vercel\.app$/;
+      const vercelPattern = /^https:\/\/kambaz-final-front.*\.vercel\.app$/;
       
       if (!origin || allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
         callback(null, true);
