@@ -1,3 +1,16 @@
+/**
+ * QUIZ ROUTES - Defines all API endpoints for quiz operations
+ * 
+ * @purpose
+ * - Maps HTTP requests to DAO functions
+ * - Handles request/response
+ * - Manages permissions (faculty vs student)
+ * - Error handling
+ * 
+ * @pattern
+ * Frontend makes request → Route handler → Calls DAO → Returns response
+ */
+
 import QuizzesDao from "./dao.js";
 
 export default function QuizRoutes(app) {

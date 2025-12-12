@@ -1,4 +1,14 @@
-// Quiz Enums - keeping objects separate from functionality
+/**
+ * ENUMS - Centralized constants for quiz system
+ * 
+ * @purpose
+ * Defines all possible values for quiz and question types
+ * Prevents typos and ensures consistency across frontend and backend
+ * 
+ * @usage
+ * Instead of hardcoding "MULTIPLE_CHOICE" everywhere,
+ * import and use QuestionType.MULTIPLE_CHOICE
+ */
 
 export const QuestionType = {
   MULTIPLE_CHOICE: "MULTIPLE_CHOICE",
@@ -7,10 +17,10 @@ export const QuestionType = {
 };
 
 export const QuizType = {
-  GRADED_QUIZ: "GRADED_QUIZ",
-  PRACTICE_QUIZ: "PRACTICE_QUIZ",
-  GRADED_SURVEY: "GRADED_SURVEY",
-  UNGRADED_SURVEY: "UNGRADED_SURVEY"
+  GRADED_QUIZ: "GRADED_QUIZ", // Regular graded quiz
+  PRACTICE_QUIZ: "PRACTICE_QUIZ", // For practice not counting towards grade
+  GRADED_SURVEY: "GRADED_SURVEY", // Survey counting towards participation
+  UNGRADED_SURVEY: "UNGRADED_SURVEY" // Survey not counting towards grade
 };
 
 export const AssignmentGroup = {
@@ -21,7 +31,7 @@ export const AssignmentGroup = {
 };
 
 export const ShowCorrectAnswers = {
-  IMMEDIATELY: "IMMEDIATELY",
-  AFTER_DUE_DATE: "AFTER_DUE_DATE",
-  NEVER: "NEVER"
+  IMMEDIATELY: "IMMEDIATELY", // Show answers right after submission
+  AFTER_DUE_DATE: "AFTER_DUE_DATE", // Show answers after the due date
+  NEVER: "NEVER" // Never show correct answers
 };
