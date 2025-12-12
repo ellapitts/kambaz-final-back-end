@@ -1,17 +1,29 @@
+/**
+ * QUIZ ATTEMPT SCHEMA - Tracks student quiz submissions
+ * 
+ * @purpose
+ * - Records each time a student takes a quiz
+ * - Stores their answers and scores
+ * - Allows multiple attempts (if enabled)
+ * 
+ * @relationship
+ * - One quiz can have many attempts (from different students)
+ * - One student can have multiple attempts (if multipleAttempts enabled)
+ */
 import mongoose from "mongoose";
 
 // Individual answer within an attempt
 const answerSchema = new mongoose.Schema({
-  questionId: { 
+  questionId: {  // Which question this answer belongs to
     type: String, 
     required: true 
   },
   answer: [String], // Student's answer(s)
-  isCorrect: { 
+  isCorrect: {  // Whether the answer is correct
     type: Boolean, 
     default: false 
   },
-  pointsEarned: { 
+  pointsEarned: {  // Points earned for this answer
     type: Number, 
     default: 0 
   }
@@ -22,20 +34,20 @@ const quizAttemptSchema = new mongoose.Schema(
   {
     quiz: { 
       type: String,
-      ref: "QuizModel",
+      ref: "QuizModel", // Links to the quiz being attempted
       required: true 
     },
     student: { 
       type: String,
-      ref: "UserModel",
+      ref: "UserModel", // Links to the student making the attempt
       required: true 
     },
     course: { 
       type: String, 
-      ref: "CourseModel",
+      ref: "CourseModel", // Course context
       required: true 
     },
-    attemptNumber: { 
+    attemptNumber: { // Sequential attempt number for this student on this quiz
       type: Number, 
       required: true 
     },
