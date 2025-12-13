@@ -1,9 +1,8 @@
 import UsersDao from "./dao.js";
-import EnrollmentsDao from "../Enrollments/dao.js";
+import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function UserRoutes(app) {
   const dao = UsersDao();
-  const enrollmentsDao = EnrollmentsDao();
 
   const createUser = async (req, res) => {
     const user = await dao.createUser(req.body);

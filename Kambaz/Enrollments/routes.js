@@ -6,6 +6,7 @@
  * "current" refers to logged-in user from session.
  *******************************************/
 import * as dao from "./dao.js";
+import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function EnrollmentRoutes(app) {
   

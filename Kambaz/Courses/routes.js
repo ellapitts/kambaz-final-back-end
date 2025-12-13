@@ -1,9 +1,8 @@
 import CoursesDao from "./dao.js";
-import EnrollmentsDao from "../Enrollments/dao.js";
+import * as enrollmentsDao from "../Enrollments/dao.js";
+
 export default function CourseRoutes(app) {
   const dao = CoursesDao();
-
-  const enrollmentsDao = EnrollmentsDao();
 
   // Handles POST /api/users/:uid/courses/:cid
   const enrollUserInCourse = async (req, res) => {

@@ -6,6 +6,8 @@
  * Enrollments link users to courses (many-to-many).
  *******************************************/
 import model from "./model.js";
+import * as enrollmentsDao from "../Enrollments/dao.js";
+
 
 /* I find all enrollments for a specific user */
 export const findEnrollmentsForUser = (userId) => {
