@@ -1,73 +1,38 @@
-// When a course is created, it needs to be associated with the creator. In a new Enrollments/dao.js file, implement enrollUserInCourse to enroll, or associate, a user to a course.
-import model from "./model.js"; // Imports mongoose model
-import { v4 as uuidv4 } from "uuid";
+/*******************************************
+ * Enrollments DAO - Alara Hakki
+ * 
+ * This is my data access object for enrollments.
+ * I handle database operations for the enrollments collection.
+ * Enrollments link users to courses (many-to-many).
+ *******************************************/
+import model from "./model.js";
 
-export default function EnrollmentsDao(db) {
+/* I find all enrollments for a specific user */
+export const findEnrollmentsForUser = (userId) => {
+  return model.find({ user: userId });
+};
 
-    // 1. Find Courses for User (READ)
-    // This is asynchronous because it queries the database.
-  async function findEnrollmentsForUser(userId) {
-    // Finds documents matching the user ID and fetches the linked Course document (.populate).
-    const  enrollments  = await model.find({ user: userId }).populate("course");
-    // Returns an array of the fully populated course objects
-    return enrollments.map((enrollment) => enrollment.course);
-    // return enrollments.filter((enrollment) => enrollment.user === userId);
-  }
+/* I find all users enrolled in a specific course */
+export const findUsersForCourse = async (courseId) => {
+  const enrollments = await model.find({ course: courseId }).populate("user");
+  return enrollments.map((e) => e.user);
+};
 
-  // Enroll user in course (Create)
-  // This function is asynchronous because it modifies the database.
-  async function enrollUserInCourse(userId, courseId) {
-    return await model.create({
+/* I create a new enrollment - links user to course */
+export const enrollUserInCourse = (userId, courseId) => {
+  return model.create({
+    _id: `${userId}-${courseId}`,  /* Composite ID ensures uniqueness */
     user: userId,
     course: courseId,
-    _id: `${userId}-${courseId}`,
   });
-}
-    // const newEnrollment = {
-    //   user: userId,
-    //   course: courseId,
-    //   _id: `${userId}-${courseId}`// Creates a unique ID for the linking document
-    // };
-    // return await model.create(newEnrollment);
-    // const { enrollments } = db;
-    // enrollments.push({ _id: uuidv4(), user: userId, course: courseId });
+};
 
-    // 3. Unenroll User from Course (DELETE)
-    // This function is asynchronous because it modifies the database.  
-    async function unenrollUserFromCourse(user, course) {
-      // Uses await and model.deleteOne() to delete the linking document.
-      return await model.deleteOne({ user, course});
-    // const { enrollments } = db;
-    // const index = enrollments.findIndex(
-    //   (enrollment) => enrollment.user === userId && enrollment.course === courseId
-    // );
-    // if (index !== -1) {
-    //   enrollments.splice(index, 1);
-    // }
-  }
+/* I remove an enrollment - unlinks user from course */
+export const unenrollUserFromCourse = (userId, courseId) => {
+  return model.deleteOne({ user: userId, course: courseId });
+};
 
-    async function unenrollAllUserFromCourse(courseId) {
-      return await model.deleteMany({ course: courseId});
-  }
-
-  // 4. Find Users for Course (READ) - Mimics the professor's structure
-    async function findUsersForCourse(courseId) {
-        const enrollments = await model.find({ course: courseId }).populate("user");
-        return enrollments.map((enrollment) => enrollment.user);
-    }
-
-  // 5. Find Enrollment Objects for User (returns enrollment documents, not just courses)
-  // This is used by the Dashboard to check enrollment status
-  async function findEnrollmentObjectsForUser(userId) {
-    // Returns enrollment documents with user and course fields
-    return await model.find({ user: userId });
-  }
-
-  // Function to update enrollment object
-  async function updateEnrollment(enrollmentId, enrollmentUpdates) {
-    return await model.updateOne({ _id: enrollmentId }, { $set: enrollmentUpdates });
-  }
-
-  return { findEnrollmentsForUser, enrollUserInCourse, unenrollUserFromCourse, unenrollAllUserFromCourse, findUsersForCourse, findEnrollmentObjectsForUser, updateEnrollment };
-
-}
+/* I remove all enrollments for a course (when course is deleted) */
+export const unenrollAllUsersFromCourse = (courseId) => {
+  return model.deleteMany({ course: courseId });
+};

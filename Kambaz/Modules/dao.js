@@ -1,42 +1,32 @@
-import { v4 as uuidv4 } from "uuid";
-import model from "../Courses/model.js";
+/*******************************************
+ * Modules DAO - Alara Hakki
+ * 
+ * This is my data access object for modules.
+ * I handle database operations for the modules collection.
+ * Each module belongs to a course.
+ *******************************************/
+import model from "./model.js";
 
-export default function ModulesDao(db) {
-  
-  async function findModulesForCourse(courseId) {
-    const course = await model.findById(courseId);
-    return course.modules;
-  }
+/* I find all modules for a specific course */
+export const findModulesForCourse = (courseId) => {
+  return model.find({ course: courseId });
+};
 
-  async function createModule(courseId, module) {
-    const newModule = { ...module, _id: uuidv4() };
-    const status = await model.updateOne(
-      { _id: courseId },
-      { $push: { modules: newModule } }
-    );
-    return newModule;
-  }
-
-  async function updateModule(courseId, moduleId, moduleUpdates) {
-    const course = await model.findById(courseId);
-    const module = course.modules.id(moduleId);
-    Object.assign(module, moduleUpdates);
-    await course.save();
-    return module;
-  }
-
-  async function deleteModule(courseId, moduleId) {
-     const status = await model.updateOne(
-     { _id: courseId },
-     { $pull: { modules: { _id: moduleId } } } // splices item out of array 
-   );
-   return status;
-  }
-
-  return {
-    findModulesForCourse,
-    createModule,
-    updateModule,
-    deleteModule,
+/* I create a new module with generated ID */
+export const createModule = (module) => {
+  const newModule = { 
+    ...module, 
+    _id: new Date().getTime().toString()  /* I generate unique ID using timestamp */
   };
-}
+  return model.create(newModule);
+};
+
+/* I update a module by ID */
+export const updateModule = (moduleId, moduleUpdates) => {
+  return model.updateOne({ _id: moduleId }, { $set: moduleUpdates });
+};
+
+/* I delete a module by ID */
+export const deleteModule = (moduleId) => {
+  return model.deleteOne({ _id: moduleId });
+};

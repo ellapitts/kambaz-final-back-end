@@ -1,91 +1,64 @@
-// The server index.js
+/*******************************************
+ * Server Entry Point - Alara Hakki
+ * 
+ * This is my main server file.
+ * I configure Express, CORS, sessions, and MongoDB.
+ * All my routes are registered here.
+ *******************************************/
 import "dotenv/config";
-import session from "express-session";
-import mongoose from "mongoose"; // Chap. 6
 import express from "express";
-import Hello from "./Hello.js"; // import Hello from Hello.js
-import Lab5 from "./Lab5/index.js";
+import cors from "cors";
+import session from "express-session";
+import mongoose from "mongoose";
+
+/* I import all my route modules */
 import UserRoutes from "./Kambaz/Users/routes.js";
 import CourseRoutes from "./Kambaz/Courses/routes.js";
-import ModulesRoutes from "./Kambaz/Modules/routes.js";
-import AssignmentsRoutes from "./Kambaz/Assignments/routes.js";
-import QuizRoutes from "./Kambaz/Quizzes/routes.js";
-import cors from "cors";
-
-const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz"
-mongoose.connect(CONNECTION_STRING)  // Connects to kambaz database
-.then(() => console.log("Connected to MongoDB!"))
-    .catch((error) => console.error("Connection error:", error));
-    
-// ------ Express setup ------
+import ModuleRoutes from "./Kambaz/Modules/routes.js";
+import AssignmentRoutes from "./Kambaz/Assignments/routes.js";
+import EnrollmentRoutes from "./Kambaz/Enrollments/routes.js";
 
 const app = express();
-app.use(
-  cors({
-    credentials: true,
-    origin: function(origin, callback) {
-      const allowedOrigins = [
-        process.env.CLIENT_URL,
-    'https://kambaz-final-front-end-git-main-ellapitts-projects.vercel.app',
-    'https://kambaz-final-front-2qg72y6y5-ellapitts-projects.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://127.0.0.1:3002'
-      ];
 
-      // Allow any Vercel preview deployment
-      const vercelPattern = /^https:\/\/kambaz-final-front.*\.vercel\.app$/;
-      
-      if (!origin || allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  })
-);
+/* I configure CORS to allow credentials (cookies) from my frontend */
+app.use(cors({
+  credentials: true,
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+}));
 
-
-
+/* I configure session options */
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: false,
-    sameSite: 'lax' // or 'none' if secure is true
-  }
 };
+
+/* In production, I enable secure cookies */
 if (process.env.SERVER_ENV !== "development") {
   sessionOptions.proxy = true;
   sessionOptions.cookie = {
     sameSite: "none",
     secure: true,
-    domain: process.env.SERVER_URL,
   };
 }
+
+/* IMPORTANT: Session must come AFTER cors but BEFORE routes */
 app.use(session(sessionOptions));
-// Debug
-// app.use((req, res, next) => {
-//   console.log('📍 Request:', req.method, req.path);
-//   console.log('🍪 Session ID:', req.session?.id);
-//   console.log('👤 Current User:', req.session?.currentUser?.username || 'Not logged in');
-//   console.log('---');
-//   next();
-// });
-
-
 app.use(express.json());
 
-// Routes loaded
-Hello(app); // pass app reference to Hello
-Lab5(app);
-UserRoutes(app); // DAOs now read from MongoDB directly
+/* I register all my routes */
+UserRoutes(app);
 CourseRoutes(app);
-ModulesRoutes(app);
-AssignmentsRoutes(app);
-QuizRoutes(app);
-app.listen(process.env.PORT || 4000);
+ModuleRoutes(app);
+AssignmentRoutes(app);
+EnrollmentRoutes(app);
+
+/* I connect to MongoDB */
+const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://localhost:27017/kambaz";
+mongoose.connect(CONNECTION_STRING);
+
+/* I start the server */
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
