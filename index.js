@@ -47,11 +47,8 @@ app.use(session(sessionOptions));
 app.use(express.json());
 
 import Lab5 from "./Lab5/index.js";
-import TodoRoutes from "./Kambaz/Todos/routes.js";
-
 /* I register all my routes */
 Lab5(app);
-TodoRoutes(app);
 UserRoutes(app);
 CourseRoutes(app);
 ModuleRoutes(app);
