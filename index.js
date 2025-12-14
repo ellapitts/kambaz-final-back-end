@@ -23,7 +23,21 @@ const app = express();
 /* I configure CORS to allow credentials (cookies) from my frontend */
 app.use(cors({
   credentials: true,
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "http://192.168.1.180:3000",
+      process.env.CLIENT_URL || "http://localhost:3000"
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // Allow any localhost for dev
+    if (origin.startsWith("http://localhost")) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  }
 }));
 
 /* I configure session options */
