@@ -1,85 +1,103 @@
+/*******************************************
+ * Courses Routes - Alara Hakki
+ * 
+ * These are my course API routes.
+ * I handle course CRUD operations.
+ * Enrollment routes are in Enrollments/routes.js
+ *******************************************/
 import CoursesDao from "./dao.js";
 import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function CourseRoutes(app) {
   const dao = CoursesDao();
 
-  // Handles POST /api/users/:uid/courses/:cid
-  const enrollUserInCourse = async (req, res) => {
-    let { uid, cid } = req.params;
-    if (uid === "current") {
-      const currentUser = req.session["currentUser"];
-      uid = currentUser._id;
-    }
-    const status = await enrollmentsDao.enrollUserInCourse(uid, cid);
-    res.send(status);
-  };
-  app.post("/api/users/:uid/courses/:cid", enrollUserInCourse);
+  /* ========== COURSE CRUD ROUTES ========== */
 
-  // Handles DELETE /api/users/:uid/courses/:cid
-  const unenrollUserFromCourse = async (req, res) => {
-    let { uid, cid } = req.params;
-    if (uid === "current") {
-      const currentUser = req.session["currentUser"];
-      uid = currentUser._id;
+  const findAllCourses = async (req, res) => {
+    try {
+      const courses = await dao.findAllCourses();
+      res.json(courses);
+    } catch (error) {
+      console.error("Find courses error:", error);
+      res.status(500).json({ message: "Error fetching courses" });
     }
-    const status = await enrollmentsDao.unenrollUserFromCourse(uid, cid);
-    res.send(status);
   };
-  app.delete("/api/users/:uid/courses/:cid", unenrollUserFromCourse);
+
+  const findCourseById = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const course = await dao.findCourseById(courseId);
+      res.json(course);
+    } catch (error) {
+      console.error("Find course error:", error);
+      res.status(500).json({ message: "Error fetching course" });
+    }
+  };
 
   const createCourse = async (req, res) => {
-    const currentUser = req.session["currentUser"];
-    const newCourse = await dao.createCourse(req.body);
-    enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
-    res.json(newCourse);
-  };
-  app.post("/api/users/current/courses", createCourse);
-
-  const findCoursesForEnrolledUser = async (req, res) => {
-    let { userId } = req.params;
-    if (userId === "current") {
+    try {
       const currentUser = req.session["currentUser"];
       if (!currentUser) {
         res.sendStatus(401);
         return;
       }
-      userId = currentUser._id;
+      console.log("Creating new course for user:", currentUser._id);
+      const newCourse = await dao.createCourse(req.body);
+      console.log("Course created in DB:", newCourse._id);
+
+      /* Auto-enroll the creator in the new course */
+      const enrollment = await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
+      console.log("User enrolled in course:", enrollment);
+
+      res.json(newCourse);
+    } catch (error) {
+      console.error("Create course error:", error);
+      res.status(500).json({ message: "Error creating course: " + error.message });
     }
-    const courses = await enrollmentsDao.findEnrollmentsForUser(userId);
-    res.json(courses);
   };
-  app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
 
-  const findAllCourses = async (req, res) => {
-    const courses = await dao.findAllCourses();
-    res.send(courses);
-  };
-  app.get("/api/courses", findAllCourses);
-
-  // Delete course
-  const deleteCourse = async (req, res) => {
-    const { courseId } = req.params;
-    await enrollmentsDao.unenrollAllUserFromCourse(courseId);
-    const status = await dao.deleteCourse(courseId);
-    res.send(status);
-  };
-  app.delete("/api/courses/:courseId", deleteCourse);
-
-  // Update course
   const updateCourse = async (req, res) => {
-    const { courseId } = req.params;
-    const courseUpdates = req.body;
-    const status = await dao.updateCourse(courseId, courseUpdates);
-    res.send(status);
+    try {
+      const { courseId } = req.params;
+      const courseUpdates = req.body;
+      const status = await dao.updateCourse(courseId, courseUpdates);
+      res.json(status);
+    } catch (error) {
+      console.error("Update course error:", error);
+      res.status(500).json({ message: "Error updating course" });
+    }
   };
-  app.put("/api/courses/:courseId", updateCourse);
 
-  // Find users enrolled in a course
-  const findUsersForCourse = async (req, res) => {
-    const { cid } = req.params;
-    const users = await enrollmentsDao.findUsersForCourse(cid);
-    res.json(users);
+  const deleteCourse = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      /* Remove all enrollments for this course first */
+      await enrollmentsDao.unenrollAllUsersFromCourse(courseId);
+      const status = await dao.deleteCourse(courseId);
+      res.json(status);
+    } catch (error) {
+      console.error("Delete course error:", error);
+      res.status(500).json({ message: "Error deleting course" });
+    }
   };
-  app.get("/api/courses/:cid/users", findUsersForCourse);
+
+  /* Find users enrolled in a course */
+  const findUsersForCourse = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const users = await enrollmentsDao.findUsersForCourse(courseId);
+      res.json(users);
+    } catch (error) {
+      console.error("Find users for course error:", error);
+      res.status(500).json({ message: "Error fetching users" });
+    }
+  };
+
+  /* Register routes */
+  app.get("/api/courses", findAllCourses);
+  app.get("/api/courses/:courseId", findCourseById);
+  app.post("/api/courses", createCourse);
+  app.put("/api/courses/:courseId", updateCourse);
+  app.delete("/api/courses/:courseId", deleteCourse);
+  app.get("/api/courses/:courseId/users", findUsersForCourse);
 }

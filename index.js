@@ -46,7 +46,12 @@ if (process.env.SERVER_ENV !== "development") {
 app.use(session(sessionOptions));
 app.use(express.json());
 
+import Lab5 from "./Lab5/index.js";
+import TodoRoutes from "./Kambaz/Todos/routes.js";
+
 /* I register all my routes */
+Lab5(app);
+TodoRoutes(app);
 UserRoutes(app);
 CourseRoutes(app);
 ModuleRoutes(app);
@@ -61,4 +66,5 @@ mongoose.connect(CONNECTION_STRING);
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Connected to Database: ${CONNECTION_STRING.includes("mongodb+srv") ? "Remote (Atlas)" : "Local"}`);
 });

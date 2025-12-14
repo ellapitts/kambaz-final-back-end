@@ -6,12 +6,21 @@
  * Enrollments link users to courses (many-to-many).
  *******************************************/
 import model from "./model.js";
-import * as enrollmentsDao from "../Enrollments/dao.js";
 
-
-/* I find all enrollments for a specific user */
+/* I find all enrollments for a specific user (just IDs) */
 export const findEnrollmentsForUser = (userId) => {
   return model.find({ user: userId });
+};
+
+/* I find all enrollment objects for a user (with populated course data) */
+export const findEnrollmentObjectsForUser = (userId) => {
+  return model.find({ user: userId });
+};
+
+/* I find all courses a user is enrolled in (with course details) */
+export const findCoursesForUser = async (userId) => {
+  const enrollments = await model.find({ user: userId }).populate("course");
+  return enrollments.map((enrollment) => enrollment.course);
 };
 
 /* I find all users enrolled in a specific course */

@@ -9,6 +9,6 @@ export default function Lab5(app) {
   });
   PathParameters(app);
   QueryParameters(app);
-  WorkingWithObjects(app);
   WorkingWithArrays(app);
+  WorkingWithObjects(app);
 }
